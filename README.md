@@ -22,7 +22,7 @@ n_reverse_no_recursion.py
 runtime 31.672 seconds  
 
 n_reverse_30lines_firstbench.py  
-runtime 8.672 seconds  
+runtime 8.672 seconds (till one first result)  
 
 ### runtime till one million (1_001_663) results
 asm = runtime 14.735 seconds  
