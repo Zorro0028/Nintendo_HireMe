@@ -1,5 +1,4 @@
-## my solution to Nintendo HireMe.c challenge  
-https://www.nerd.nintendo.com/files/HireMe
+## my solution to Nintendo [HireMe.c](https://www.nerd.nintendo.com/files/HireMe) challenge  
 
 my asm solution is fastest, 14.7 seconds for generating one million results.  
 
