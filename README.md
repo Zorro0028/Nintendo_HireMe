@@ -30,9 +30,9 @@ asm = runtime 14.735 seconds
 c   = runtime 15.500 seconds (with -O3 compiler option)  
 
 after re-optimization of assembler's xor unroll,  
-my assembler code is finally runs faster than optimized gcc c compiler  
-my first asm version was slower than c  
-x86_64bit assembler code made for windows  
+my assembler code is finally runs faster than optimized gcc c compiler.  
+my first asm version was slower than c.  
+x86_64bit assembler code made for windows.  
 
 asm version compiled in windows using [flat assembler](https://github.com/tgrysztar)  
 c   version compiled in windows using MSYS2 environment https://www.msys2.org  
@@ -46,6 +46,6 @@ https://github.com/rnbwdsh/nintendo_hireme
 https://github.com/EthanTheMaster/nintendo_nerd_solution  
 https://github.com/lewisxy/hireme-challenge  
 
-greetz to all who did it  
+greetz to all who did it.  
 
-Zorro  
+Zorro.  
