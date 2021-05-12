@@ -47,6 +47,4 @@ https://github.com/lewisxy/hireme-challenge
 
 greetz to all who did it
 
-per aspera ad astra
-
-Z.
+Zorro
