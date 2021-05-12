@@ -46,8 +46,6 @@ https://github.com/anonbeat/nintendo_hireme
 https://github.com/rnbwdsh/nintendo_hireme  
 https://github.com/EthanTheMaster/nintendo_nerd_solution  
 https://github.com/lewisxy/hireme-challenge  
-https://github.com/alberthier/nerd.nintendo.com  
-https://github.com/donno2048/Nintendo  
 
 greetz to all who did it.  
 
