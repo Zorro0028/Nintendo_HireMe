@@ -34,6 +34,8 @@ my assembler code is finally runs faster than optimized gcc c compiler.
 my first asm version was slower than c.  
 x86_64bit assembler code made for windows.  
 
+both c and asm solutions are non-recursive.  
+
 asm version compiled in windows using [flat assembler](https://github.com/tgrysztar)  
 c   version compiled in windows using [MSYS2 environment](https://www.msys2.org)  
 
