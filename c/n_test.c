@@ -1,5 +1,5 @@
 #define ITERATION_COUNT     256
-#define filename            "__n_res_c.bin"
+static const char filename[] = "__n_res_c.bin";
 
 typedef unsigned char       u8;
 typedef unsigned long long  u64;
