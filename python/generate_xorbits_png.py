@@ -1,5 +1,5 @@
 import tkinter
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 arr32 = [
 0xf26cb481,0x16a5dc92,0x3c5ba924,0x79b65248,0x2fc64b18,0x615acd29,0xc3b59a42,0x976b2584,
