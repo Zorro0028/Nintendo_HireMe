@@ -1,10 +1,11 @@
 ## my solution to Nintendo's HireMe.c challenge  
 https://www.nerd.nintendo.com/files/HireMe
 
-my asm    solution is fastest  = 14.7 seconds for generating one million results  
-my python solution is smallest = 30   lines of pure python with zero external libs to output all possible results (with some pre-gen values)  
+my asm solution is fastest, 14.7 seconds for generating one million results.  
 
-### runtime till first results
+my python solution is smallest, only 30 lines of pure python, without external libs, with some pre-gen values, to output all possible results.  
+
+### runtime till first 4512 results
 
 n_reverse.asm  
 runtime 0.046 seconds  
