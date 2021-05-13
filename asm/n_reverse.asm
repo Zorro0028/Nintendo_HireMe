@@ -147,6 +147,9 @@ notmax:
 	test	r15w, r15w
 	jne	not_end
 
+	inc	[ResCounter]
+
+if WRITE_RESULTS2FILE = 1
 	mov	rdi, [ResultPointer]
 	movsq
 	movsq
@@ -154,10 +157,8 @@ notmax:
 	movsq
 	mov	[ResultPointer], rdi
 
-	inc	[ResCounter]
 	inc	[ResMemCounter]
 
-if WRITE_RESULTS2FILE = 1
 	cmp	[ResMemCounter], SAVE_RESULTS_EVERYN
 	jb	notsaveyet
 
