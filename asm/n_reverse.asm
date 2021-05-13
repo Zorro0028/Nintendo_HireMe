@@ -1,12 +1,12 @@
-; made by Zorro; zorropride gmail
-EXITAFTER_NRESULTS	equ 1
+; v1.1 made by Zorro; zorropride gmail
+EXITAFTER_NPLUSRES	equ 1
 WRITE_RESULTS2FILE	equ 1
-
 ; ; one million results benchmark
-; EXITAFTER_NRESULTS	equ 1_000_000
-; WRITE_RESULTS2FILE	equ 0
+; EXITAFTER_NPLUSRES	equ 1_000_000
+; WRITE_RESULTS2FILE	equ 1
 
-maxresultbsize		equ 4*1024*1_048_576
+SAVE_RESULTS_EVERYN	equ 100_000
+maxresultbsize		equ SAVE_RESULTS_EVERYN*32
 maxchecklistbytesize	equ 4*1024*1_048_576
 secondblocksize		equ 32
 checklistblocksize	equ (32+secondblocksize)
@@ -29,10 +29,10 @@ BytesWritten		dq 0
 ConsoleHandle		dq 0
 
 errorStr		db 'error',0
-timeStr			db 'time in ms = ',0
-trycounterLOW64bitsStr	db 'trycounterLOW64bits = ',0
+timeStr			db 'Time in ms = ',0
+ResCounterStr		db 'ResCounter = ',0
+TryCounterStr		db 'TryCounter = ',0
 MaxPointerStr		db 'MaxPointer = ',0
-AllResCounterStr	db 'AllResCounter = ',0
 nStr			db 0dh,0ah
 
 loadingStr		db ' _____',0dh,0ah,'|[___]|',0dh,0ah,'|+asm+|',0dh,0ah,'`-----''',0dh,0ah,'loading',0dh,0ah,0dh,0ah
@@ -47,7 +47,8 @@ trycounterHIGH64bits	dq -1
 ResultAddr		dq 0
 ResultPointer		dq 0
 
-AllResCounter		dq 0
+ResCounter		dq 0
+ResMemCounter		dq 0
 MaxPointer		dq 0
 
 checklistAddr		dq 0
@@ -69,7 +70,7 @@ start:
 	test	rax, rax
 	jz	ErrExit
 
-	invoke	VirtualAlloc, 0, maxresultbsize+1_000_000, MEM_COMMIT, PAGE_READWRITE
+	invoke	VirtualAlloc, 0, maxresultbsize, MEM_COMMIT, PAGE_READWRITE
 	mov	[ResultAddr], rax
 	mov	[ResultPointer], rax
 
@@ -153,7 +154,26 @@ notmax:
 	movsq
 	mov	[ResultPointer], rdi
 
-	inc	[AllResCounter]
+	inc	[ResCounter]
+	inc	[ResMemCounter]
+
+if WRITE_RESULTS2FILE = 1
+	cmp	[ResMemCounter], SAVE_RESULTS_EVERYN
+	jb	notsaveyet
+
+	mov	rdx, [ResultAddr]
+	mov	r8, [ResultPointer]
+	sub	r8, rdx
+	invoke	WriteFile, [ResultFileH], rdx, r8, BytesWritten, 0
+	test	rax, rax
+	jz	ErrExit
+
+	xor	rax, rax
+	mov	[ResMemCounter], rax
+	mov	rax, [ResultAddr]
+	mov	[ResultPointer], rax
+notsaveyet:
+end if
 
 	jmp	do_next
 
@@ -241,11 +261,8 @@ fillcntloop:
 
 reverse_end:
 
-if EXITAFTER_NRESULTS > 0
-	cmp	[AllResCounter], EXITAFTER_NRESULTS
-	jae	WriteResultAndExit
-else
-	cmp	[AllResCounter], maxresultbsize/32
+if EXITAFTER_NPLUSRES > 0
+	cmp	[ResCounter], EXITAFTER_NPLUSRES
 	jae	WriteResultAndExit
 end if
 
@@ -276,13 +293,12 @@ if WRITE_RESULTS2FILE = 1
 	mov	rdx, [ResultAddr]
 	mov	r8, [ResultPointer]
 	sub	r8, rdx
-
 	invoke	WriteFile, [ResultFileH], rdx, r8, BytesWritten, 0
 	test	rax, rax
 	jz	ErrExit
 end if
 
-	mov	rdx, trycounterLOW64bitsStr
+	mov	rdx, TryCounterStr
 	call	calcstrlen
 	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
 	mov	rax, [trycounterLOW64bits]
@@ -297,11 +313,11 @@ end if
 	mov	r8, 2
 	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
 
-	mov	rdx, AllResCounterStr
+	mov	rdx, ResCounterStr
 	call	calcstrlen
 	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
 
-	mov	rax, [AllResCounter]
+	mov	rax, [ResCounter]
 	mov	rdi, TempStringStartAddr + 13
 	mov	rbx, 1
 	call	UInt2DecStrRev
