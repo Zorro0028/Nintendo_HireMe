@@ -1,5 +1,4 @@
-// made by Zorro; zorropride gmail
-// v1.1; true 128bit counter to check all possible 256^16 combinations
+// v1.1 made by Zorro; zorropride gmail
 #define EXITAFTER_NPLUSRES	1
 #define TRYTEXTOUTPUT		1
 #define WRITE_RESULTS2FILE	1
