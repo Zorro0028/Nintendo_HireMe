@@ -59,7 +59,7 @@ x86_64bit assembler code made for windows.
 asm version compiled in windows using [flat assembler](https://github.com/tgrysztar)  
 c   version compiled in windows using [MSYS2 environment](https://www.msys2.org)  
 
-### links to solutions from others 2021-05-12:
+### links to solutions from others 2021-05-19:
 https://github.com/ayufan/nintendo-hire-me  
 https://github.com/IamLupo/Nintendo-HireMe  
 https://github.com/AntonioGE/Nintendo-HireMe-Solver  
