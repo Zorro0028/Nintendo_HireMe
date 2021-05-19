@@ -25,8 +25,8 @@ n_reverse_30lines_firstbench.py
 runtime 8.672 seconds (till one first result)  
 
 ### runtime till one million (1_001_663) results
-asm = runtime 14.735 seconds  
-c   = runtime 15.500 seconds (with -O3 compiler option)  
+asm = runtime 14.046 seconds  
+c   = runtime 14.609 seconds (with -O3 compiler option)  
 
 ### runtime till one billon (1_000_000_000) results
 asm = runtime 13188 seconds (3 hours 39 minutes 48 seconds)  
