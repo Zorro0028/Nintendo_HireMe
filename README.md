@@ -35,7 +35,7 @@ this is ~75 results per millisecond.
 SHA256 hash of __n_res_asm.bin: ae590a18c7c4ec7f7bbe2deb162f4d2dff828af55a79778321ca33e94c511419  
 
 ### very interesting finding
-after about 48 hours of multi-threading cpu searching using findruns.py together with n_findmaxres.c i found very interesting last 32 bytes!  
+after about 48 hours of multi-threading cpu searching using findruns.py together with n_findmaxres.c i found very interesting last 32 bytes.  
 this block of last 32 bytes has 430281 different possible starting variants for the correct solution!  
 430281!  
 0x72,0x73,0x09,0x5e,0x6d,0x09,0xf0,0x69,0x92,0x14,0x35,0xbb,0x20,0x60,0xe5,0x4d,0xb1,0xab,0xf1,0x13,0xab,0xc8,0x69,0x0a,0x05,0x51,0x32,0xdc,0xc8,0x6e,0x1c,0x4e,  
