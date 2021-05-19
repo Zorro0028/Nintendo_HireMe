@@ -84,20 +84,7 @@ for n in range(16):
 
 of = open("n_data.inc", "w")
 
-of.write("goodpairs:\n")
-for i in range(16):
-
-    for r in range(16):
-        rstr = "db "
-        for c in range(16):
-            gp = goodpairs[i][r*16+c]
-            rstr += ah(gp[0])
-            rstr += ah(gp[1])
-        rstr = rstr.rstrip(",")
-        of.write(rstr+"\n")
-
-
-of.write("\narr256:\n")
+of.write("arr256:\n")
 rcnt = 0
 rstr = "db "
 for i in range(256):
@@ -168,9 +155,23 @@ for i in range(256):
         rcnt = 0
         rstr = "db "
 
+of.write("\ngoodpairs:\n")
+for i in range(16):
+
+    for r in range(16):
+        rstr = "db "
+        for c in range(16):
+            gp = goodpairs[i][r*16+c]
+            rstr += ah(gp[0])
+            rstr += ah(gp[1])
+        rstr = rstr.rstrip(",")
+        of.write(rstr+"\n")
+
+
 of.close()
 
 print()
+
 xortab = {}
 for i in range(32):
     nlist = [0]*32

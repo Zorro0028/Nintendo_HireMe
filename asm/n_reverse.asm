@@ -1,13 +1,20 @@
-; v1.1 made by Zorro; zorropride gmail
-EXITAFTER_NPLUSRES	equ 1
-WRITE_RESULTS2FILE	equ 1
-; ; one million results benchmark
-; EXITAFTER_NPLUSRES	equ 1_000_000
-; WRITE_RESULTS2FILE	equ 1
+; v1.2 made by Zorro; zorropride gmail
 
-SAVE_RESULTS_EVERYN	equ 100_000
+; EXIT_AFTER_NPLUSRES	equ 1
+; WRITE_2FILE		equ 1
+; WRITE_2FILE_SHOWC	equ 1
+
+; one million benchmark
+EXIT_AFTER_NPLUSRES	equ 1_000_000
+WRITE_2FILE		equ 0
+WRITE_2FILE_SHOWC	equ 0
+
+START_TRY_LO64		equ 0h
+START_TRY_HI64		equ 0h
+
+SAVE_RESULTS_EVERYN	equ 50_000
 maxresultbsize		equ SAVE_RESULTS_EVERYN*32
-maxchecklistbytesize	equ 4*1024*1_048_576
+maxchecklistbytesize	equ 64*900_000
 secondblocksize		equ 32
 checklistblocksize	equ (32+secondblocksize)
 
@@ -28,21 +35,24 @@ BytesWritten		dq 0
 
 ConsoleHandle		dq 0
 
-errorStr		db 'error',0
+errorStr		db 'ERROR',0
+errorNoLimitStr		db 'ERROR: EXIT_AFTER_NPLUSRES < 1',0dh,0ah,0
+LimitStr		db 'EXIT_AFTER_NPLUSRES = ',0
+startTryCounterStr	db 'start TryCounter = 0x',0
+finalStr		db 'FINAL:',0
 timeStr			db 'Time in ms = ',0
 ResCounterStr		db 'ResCounter = ',0
-TryCounterStr		db 'TryCounter = ',0
 MaxPointerStr		db 'MaxPointer = ',0
 nStr			db 0dh,0ah
-
-loadingStr		db ' _____',0dh,0ah,'|[___]|',0dh,0ah,'|+asm+|',0dh,0ah,'`-----''',0dh,0ah,'loading',0dh,0ah,0dh,0ah
+tStr			db 09h
+loadingStr		db ' _____',0dh,0ah,'|[___]|',0dh,0ah,'|+asm+|',0dh,0ah,'`-----''',0dh,0ah,'reverse',0dh,0ah,0dh,0ah,0
 
 TempStringStartAddr:
 rb 256
 
 align 10h
-trycounterLOW64bits	dq -1
-trycounterHIGH64bits	dq -1
+TryCounterLOW64		dq 0
+TryCounterHIGH64	dq 0
 
 ResultAddr		dq 0
 ResultPointer		dq 0
@@ -64,22 +74,30 @@ start:
 	jz	ErrExit
 	mov	[ConsoleHandle], rax
 
+if EXIT_AFTER_NPLUSRES < 1
+	mov	rdx, errorNoLimitStr
+	call	calcstrlen
+	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
+	invoke	CloseHandle, [ConsoleHandle]
+	invoke	ExitProcess, 0
+end if
+
 	mov	rdx, loadingStr
 	call	calcstrlen
 	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
 	test	rax, rax
 	jz	ErrExit
 
-	invoke	VirtualAlloc, 0, maxresultbsize, MEM_COMMIT, PAGE_READWRITE
-	mov	[ResultAddr], rax
-	mov	[ResultPointer], rax
-
 	invoke	VirtualAlloc, 0, maxchecklistbytesize, MEM_COMMIT, PAGE_READWRITE
 	mov	[checklistAddr], rax
 	add	rax, checklistblocksize
 	mov	[checklistFirstAddr], rax
 
-if WRITE_RESULTS2FILE = 1
+if WRITE_2FILE = 1
+	invoke	VirtualAlloc, 0, maxresultbsize, MEM_COMMIT, PAGE_READWRITE
+	mov	[ResultAddr], rax
+	mov	[ResultPointer], rax
+
 	invoke	CreateFileA, ResultFileName, GENERIC_WRITE, FILE_SHARE_READ + FILE_SHARE_WRITE, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0
 	test	rax, rax
 	jz	ErrExit
@@ -87,6 +105,77 @@ if WRITE_RESULTS2FILE = 1
 	jz	ErrExit
 	mov	[ResultFileH], rax
 end if
+
+	mov	rdx, LimitStr
+	call	calcstrlen
+	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
+
+	mov	rdi, TempStringStartAddr + 40
+	mov	rax, EXIT_AFTER_NPLUSRES
+	mov	rbx, 1
+	call	UInt2DecStrRev
+	mov	byte [rbx+rax], 0
+	mov	rdx, rbx
+	call	calcstrlen
+	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
+
+	mov	rdx, nStr
+	mov	r8, 2
+	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
+
+	mov	rax, START_TRY_LO64
+	mov	[TryCounterLOW64], rax
+	mov	rax, START_TRY_HI64
+	mov	[TryCounterHIGH64], rax
+
+	mov	rdx, startTryCounterStr
+	call	calcstrlen
+	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
+
+	mov	rdi, TempStringStartAddr + 32
+	std
+	mov	al, 0
+	stosb
+
+	mov	rbx, [TryCounterLOW64]
+	mov	rcx, 16
+writehexcharsloop1:
+	mov	al, bl
+	and	al, 0fh
+	cmp	al, 10
+	jb	nothexletter1
+	add	al, -'0'+'a'-10
+nothexletter1:
+	add	al, '0'
+	stosb
+	shr	rbx, 4
+	dec	rcx
+	jnz	writehexcharsloop1
+
+	mov	rbx, [TryCounterHIGH64]
+	mov	rcx, 16
+writehexcharsloop2:
+	mov	al, bl
+	and	al, 0fh
+	cmp	al, 10
+	jb	nothexletter2
+	add	al, -'0'+'a'-10
+nothexletter2:
+	add	al, '0'
+	stosb
+	shr	rbx, 4
+	dec	rcx
+	jnz	writehexcharsloop2
+
+	cld
+
+	mov	rdx, TempStringStartAddr
+	call	calcstrlen
+	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
+
+	mov	rdx, nStr
+	mov	r8, 2
+	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
 
 	xor	r12, r12
 	xor	r13, r13
@@ -96,15 +185,10 @@ end if
 
 align 10h
 tryagain:
-	;increment 128bit trycounter
-	mov	rax, 1
-	add	[trycounterLOW64bits], rax
-	adc	[trycounterHIGH64bits], 0
-
-	;fill last32 good bytes based on 128bit trycounter
+	;fill last32 good bytes based on 128bit TryCounter
 	mov	rdi, [checklistFirstAddr]
 
-	mov	rbx, [trycounterLOW64bits]
+	mov	rbx, [TryCounterLOW64]
 	repeat 8
 	movzx	rdx, bl
 	add	rdx, rdx
@@ -113,7 +197,7 @@ tryagain:
 	stosw
 	end repeat
 
-	mov	rbx, [trycounterHIGH64bits]
+	mov	rbx, [TryCounterHIGH64]
 	repeat 8
 	movzx	rdx, bl
 	add	rdx, rdx
@@ -123,6 +207,11 @@ tryagain:
 	end repeat
 
 	mov	word [rdi], 256
+
+	;increment 128bit TryCounter
+	mov	rax, 1
+	add	[TryCounterLOW64], rax
+	adc	[TryCounterHIGH64], 0
 
 	mov	r14, 2 		;r14 = checklistPointer
 	jmp	do_next
@@ -149,7 +238,7 @@ notmax:
 
 	inc	[ResCounter]
 
-if WRITE_RESULTS2FILE = 1
+if WRITE_2FILE = 1
 	mov	rdi, [ResultPointer]
 	movsq
 	movsq
@@ -173,6 +262,14 @@ if WRITE_RESULTS2FILE = 1
 	mov	[ResMemCounter], rax
 	mov	rax, [ResultAddr]
 	mov	[ResultPointer], rax
+
+	if	WRITE_2FILE_SHOWC = 1
+		call	WriteConsoleStatus
+	end if
+
+	cmp	[ResCounter], EXIT_AFTER_NPLUSRES
+	jae	WriteResultAndExit
+
 notsaveyet:
 end if
 
@@ -250,10 +347,9 @@ donextb:
 
 	dec	r15w
 	mov	rcx, r8
-	mov	rdx, rsi
 fillcntloop:
-	mov	[rdx], r15w
-	add	rdx, 64
+	mov	[rsi], r15w
+	add	rsi, 64
 	dec	rcx
 	jnz	fillcntloop
 
@@ -262,17 +358,63 @@ fillcntloop:
 
 reverse_end:
 
-if EXITAFTER_NPLUSRES > 0
-	cmp	[ResCounter], EXITAFTER_NPLUSRES
+	cmp	[ResCounter], EXIT_AFTER_NPLUSRES
 	jae	WriteResultAndExit
-end if
 
 Last32WasNotGood:
 	jmp	tryagain
 
 
 WriteResultAndExit:
+	mov	rdx, nStr
+	mov	r8, 2
+	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
+	mov	rdx, finalStr
+	call	calcstrlen
+	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
+	mov	rdx, nStr
+	mov	r8, 2
+	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
 
+	call	WriteConsoleStatus
+
+if WRITE_2FILE = 1
+	mov	rdx, [ResultAddr]
+	mov	r8, [ResultPointer]
+	sub	r8, rdx
+	test	r8, r8
+	jz	skip_last_write
+	invoke	WriteFile, [ResultFileH], rdx, r8, BytesWritten, 0
+	test	rax, rax
+	jz	ErrExit
+skip_last_write:
+end if
+
+Exit:
+if WRITE_2FILE = 1
+	invoke	CloseHandle, [ResultFileH]
+	invoke	VirtualFree, [ResultAddr], 0, MEM_COMMIT, MEM_RELEASE
+end if
+
+	invoke	VirtualFree, [checklistAddr], 0, MEM_COMMIT, MEM_RELEASE
+
+	invoke	CloseHandle, [ConsoleHandle]
+
+	invoke	ExitProcess, 0
+
+
+ErrExit:
+	mov	rdx, errorStr
+	call	calcstrlen
+	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
+	mov	rdx, nStr
+	mov	r8, 2
+	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
+
+	jmp	Exit
+
+
+WriteConsoleStatus:
 	mov	rdx, timeStr
 	call	calcstrlen
 	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
@@ -286,32 +428,9 @@ WriteResultAndExit:
 	mov	rdx, rbx
 	call	calcstrlen
 	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
-	mov	rdx, nStr
-	mov	r8, 2
-	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
 
-if WRITE_RESULTS2FILE = 1
-	mov	rdx, [ResultAddr]
-	mov	r8, [ResultPointer]
-	sub	r8, rdx
-	invoke	WriteFile, [ResultFileH], rdx, r8, BytesWritten, 0
-	test	rax, rax
-	jz	ErrExit
-end if
-
-	mov	rdx, TryCounterStr
-	call	calcstrlen
-	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
-	mov	rax, [trycounterLOW64bits]
-	mov	rdi, TempStringStartAddr + 13
-	mov	rbx, 1
-	call	UInt2DecStrRev
-	mov	byte [rbx+rax],0
-	mov	rdx, rbx
-	call	calcstrlen
-	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
-	mov	rdx, nStr
-	mov	r8, 2
+	mov	rdx, tStr
+	mov	r8, 1
 	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
 
 	mov	rdx, ResCounterStr
@@ -326,8 +445,9 @@ end if
 	mov	rdx, rbx
 	call	calcstrlen
 	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
-	mov	rdx, nStr
-	mov	r8, 2
+
+	mov	rdx, tStr
+	mov	r8, 1
 	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
 
 	mov	rdx, MaxPointerStr
@@ -342,28 +462,12 @@ end if
 	mov	rdx, rbx
 	call	calcstrlen
 	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
+
 	mov	rdx, nStr
 	mov	r8, 2
 	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
 
-Exit:
-if WRITE_RESULTS2FILE = 1
-	invoke	CloseHandle, [ResultFileH]
-end if
-	invoke	VirtualFree, [ResultAddr], 0, MEM_COMMIT, MEM_RELEASE
-	invoke	VirtualFree, [checklistAddr], 0, MEM_COMMIT, MEM_RELEASE
-
-	invoke	ExitProcess, 0
-
-ErrExit:
-	mov	rdx, errorStr
-	call	calcstrlen
-	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
-	mov	rdx, nStr
-	mov	r8, 2
-	invoke	WriteFile, [ConsoleHandle], rdx, r8, BytesWritten, 0
-
-	jmp	Exit
+	ret
 
 
 ;rax - uint
@@ -413,7 +517,8 @@ UInt2DecStrRev_nocomma:
 
 
 calcstrlen:
-	mov	r8, -1
+	xor	r8, r8
+	dec	r8
 calcstrlen_loop:
 	inc	r8
 	mov	al, [rdx+r8]
@@ -426,3 +531,4 @@ data import
 library kernel32, 'kernel32.dll'
 include 'api\kernel32.inc'
 end data
+
