@@ -41,17 +41,17 @@ for i in range(32):
         canvas_pil.rectangle((n*ss+bb, i*ss+bb, n*ss+ss-bb, i*ss+ss-bb), fill=fillc)
     print()
 
-canvas.create_line(w>>1, 0   , w>>1, h    , width=bb*5)
-canvas.create_line(0   , h>>1, w   , h>>1 , width=bb*5)
-canvas_pil.line(  (w>>1, 0   , w>>1, h   ), width=bb*5, fill="black")
-canvas_pil.line(  (0   , h>>1, w   , h>>1), width=bb*5, fill="black")
+canvas.create_line(w>>1, 0   , w>>1, h    , width=bb*6)
+canvas.create_line(0   , h>>1, w   , h>>1 , width=bb*6)
+canvas_pil.line(  (w>>1, 0   , w>>1, h   ), width=bb*6, fill="black")
+canvas_pil.line(  (0   , h>>1, w   , h>>1), width=bb*6, fill="black")
 
 
 for i in range(32//4):
-    canvas.create_line(ss*i*4, 0     , ss*i*4, h      , width=bb*3)
-    canvas.create_line(0     , ss*i*4, w     , ss*i*4 , width=bb*3)
-    canvas_pil.line(  (ss*i*4, 0     , ss*i*4, h     ), width=bb*3, fill="black")
-    canvas_pil.line(  (0     , ss*i*4, w     , ss*i*4), width=bb*3, fill="black")
+    canvas.create_line(ss*i*4, 0     , ss*i*4, h      , width=bb*4)
+    canvas.create_line(0     , ss*i*4, w     , ss*i*4 , width=bb*4)
+    canvas_pil.line(  (ss*i*4, 0     , ss*i*4, h     ), width=bb*4, fill="black")
+    canvas_pil.line(  (0     , ss*i*4, w     , ss*i*4), width=bb*4, fill="black")
 
 
 img_pil.save(filename + ".png")
