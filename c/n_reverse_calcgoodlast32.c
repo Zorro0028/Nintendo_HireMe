@@ -31,6 +31,9 @@ clock_t tic;
 u64 MaxPointer = 0;
 u64 ResCounter = 0;
 
+u64 PrevResCnt = 0;
+u64 GoodLast32 = 0;
+
 
 int WriteConsoleStatus() {
 	clock_t toc = clock();
@@ -112,6 +115,7 @@ int main(int argc, char* argv[]) {
 		#endif
 
 		TryCounter++;
+		PrevResCnt = 0;
 
 		while (checklistpointer > 0) {
 			if (MaxPointer < checklistpointer)
@@ -122,6 +126,7 @@ int main(int argc, char* argv[]) {
 			if (iterations_left == 0)
 			{
 				ResCounter++;
+				PrevResCnt++;
 				#if WRITE_2FILE == 1
 					memcpy(results[ResMemCounter].result32, checklist[checklistpointer].check32, 32);
 					ResMemCounter++;
@@ -202,6 +207,10 @@ int main(int argc, char* argv[]) {
 			checklistpointer += addcnt - 1;
 		}
 
+		if (PrevResCnt > 0) {
+			GoodLast32++;
+		}
+
 		#if EXIT_AFTER_NPLUSRES > 0
 			if (ResCounter >= EXIT_AFTER_NPLUSRES)
 				break;
@@ -211,6 +220,8 @@ int main(int argc, char* argv[]) {
 	printf("\nFINAL:\n");
 
 	WriteConsoleStatus();
+
+	printf("GoodLast32 = %llu\n", GoodLast32);
 
 	#if WRITE_2FILE == 1
 		if (ResMemCounter > 0) {

@@ -12,8 +12,6 @@ typedef unsigned long long  u64;
 
 int main(int argc, char* argv[])
 {
-    printf("testing ");
-
     u8 target16[]="Hire me!!!!!!!!";
     u8 output16[16], temp32[32], input32[32], i;
 
